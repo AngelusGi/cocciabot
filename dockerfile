@@ -8,6 +8,7 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY ./src .
+COPY ./requirements.txt .
 
 RUN adduser -D tgbot && \
     chown -R tgbot /app

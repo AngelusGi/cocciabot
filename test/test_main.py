@@ -4,7 +4,7 @@ import pytest
 from telegram import Chat, Update, User
 from telegram.ext import ContextTypes
 
-from src.main import init_logger, log_session, start
+from main import caps, help, init_logger, log_session, start
 
 
 @pytest.fixture
@@ -32,3 +32,14 @@ def test_log_session(update):
 async def test_start(update, context):
     await start(update, context)
     assert update.message.text == "/start"
+
+@pytest.mark.asyncio
+async def test_help(update, context):
+    await help(update, context)
+    assert update.message.text == "/help"
+
+@pytest.mark.asyncio
+async def test_caps(update, context):
+    context.args = ["test", "message"]
+    await caps(update, context)
+    assert update.message.text == "/caps test message"
