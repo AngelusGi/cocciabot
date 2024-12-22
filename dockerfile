@@ -1,6 +1,6 @@
 FROM python:3.11-alpine AS build
 
-ARG TOKEN
+ARG TG_BOT_TOKEN
 
 RUN pip install --upgrade pip
 
@@ -17,6 +17,5 @@ RUN pip install wheel setuptools && \
     rm requirements.txt
 
 USER tgbot
-
 
 CMD ["python", "./main.py"]
