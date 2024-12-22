@@ -1,34 +1,80 @@
 import logging
 
-import pytest
-from telegram import Chat, Update, User
-from telegram.ext import ContextTypes
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-from src.main import init_logger, log_session, start
+from config import Config
 
 
-@pytest.fixture
-def update():
-    user = User(id=123, first_name="TestUser", is_bot=False)
-    chat = Chat(id=456, type="private")
-    message = type('obj', (object,), {'text': '/start', 'chat': chat, 'from_user': user})
-    return Update(update_id=1, message=message)
+def init_logger() -> logging.Logger:
+    """
+    Initializes the logger with a specific format and level.
+    Returns:
+        logging.Logger: Configured logger instance.
+    """
+    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO,)
+    return logging.getLogger(__name__)
 
-@pytest.fixture
-def context():
-    return ContextTypes.DEFAULT_TYPE()
+def log_session(update: Update, response_message: str) -> None:
+    """
+    Logs the session details including the received command and response message.
+    Args:
+        update (Update): The update object containing the message details.
+        response_message (str): The response message to be logged.
+    """
+    logger.info(f"Received \"{update.effective_message.text}\" command from user \"{update.effective_user.username}\" in \"{update.effective_chat.type}\" chat.")
+    logger.info(f"Chat ID: \"{update.effective_chat.id}\", User ID: \"{update.effective_user.id}\"")
+    logger.info(f"Response message: \"{response_message}\"")
 
-def test_init_logger():
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """
+    Handles the /start command. Sends a welcome message to the user.
+    Args:
+        update (Update): The update object containing the message details.
+        context (ContextTypes.DEFAULT_TYPE): The context object for the command.
+    """
+    welcome_message = f"Hello {update.effective_user.first_name}! I'm a bot, {config.bot_name}! 🏃‍♂️‍➡️🏃‍♂️‍➡️🏃‍♂️‍➡️ \n"
+    log_session(update, welcome_message)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message)
+
+async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """
+    Handles the /help command. Sends a help message to the user.
+    Args:
+        update (Update): The update object containing the message details.
+        context (ContextTypes.DEFAULT_TYPE): The context object for the command.
+    """
+    help_message = f"Hello {update.effective_user.first_name}! I'm a bot, {config.bot_name}! 🏃‍♂️‍➡️🏃‍♂️‍➡️🏃‍♂️‍➡️ \nTo start using me send me /start"
+    log_session(update, help_message)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=help_message)
+
+async def caps(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """
+    Handles the /caps command. Converts the provided text to uppercase and sends it back to the user.
+    Args:
+        update (Update): The update object containing the message details.
+        context (ContextTypes.DEFAULT_TYPE): The context object for the command.
+    """
+    text_caps = " ".join(context.args).upper() if context.args else "Usage: /caps <some text>"
+    log_session(update, text_caps)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=text_caps)
+
+def main() -> None:
+    """
+    Main entry point of the bot application. Initializes the logger, loads environment variables,
+    and sets up command handlers for the bot.
+    """
+    global logger, config
     logger = init_logger()
-    assert isinstance(logger, logging.Logger)
+    config = Config()
 
-def test_log_session(update):
-    logger = init_logger()
-    response_message = "Test response"
-    log_session(update, response_message)
-    assert logger.name == "__main__"
+    application = ApplicationBuilder().token(config.bot_token).build()
 
-@pytest.mark.asyncio
-async def test_start(update, context):
-    await start(update, context)
-    assert update.message.text == "/start"
+    application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('help', help))
+    application.add_handler(CommandHandler('caps', caps))
+
+    application.run_polling()
+
+if __name__ == '__main__':
+    main()
