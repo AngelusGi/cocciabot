@@ -169,3 +169,11 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+infra/.terraform.lock.hcl
+.vscode/settings.json
+infra/.terraform/modules/modules.json
+infra/.terraform/providers/registry.terraform.io/hashicorp/azurerm/4.14.0/linux_amd64/LICENSE.txt
+infra/.terraform/providers/registry.terraform.io/hashicorp/azurerm/4.14.0/linux_amd64/terraform-provider-azurerm_v4.14.0_x5
+infra/.terraform/terraform.tfstate
+infra/client.sh
+infra/test.tmp.txt

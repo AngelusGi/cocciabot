@@ -9,10 +9,13 @@ class Config:
         if not load_success:
             raise EnvironmentError("Failed to load .env file")
         
-        self.bot_token = os.getenv("TG_BOT_TOKEN")
+        # self.bot_token = os.getenv("TG_BOT_TOKEN")
+        self.kv_name = os.getenv("AZ_KV_NAME")
         self.bot_name = os.getenv("TG_BOT_NAME")
         
+        # if not self.bot_token:
+        #     raise ValueError("Token is not provided")
         if not self.bot_token:
-            raise ValueError("Token is not provided")
+            raise ValueError("Azure KeyVault name is not provided")
         if not self.bot_name:
             raise ValueError("Bot name is not provided")
